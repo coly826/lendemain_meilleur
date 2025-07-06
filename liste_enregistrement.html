@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Enregistrements</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            position: relative;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url('https://images.saatchiart.com/saatchi/938273/art/8806167/7869566-GXNPRCPG-7.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.4;
+            z-index: -1;
+        }
+
+        .container {
+            margin-top: 40px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            border-radius: 10px;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <img class="img-fluid rounded-circle d-block mx-auto mt-3"
+    src="image/0039b5db-d495-45d0-9ad5-5e6ff401c6f1.jpg"
+    alt="Photo de profil"
+    style="width: 150px; height: 150px; object-fit: cover;">
+    <div class="container">
+        <h2 class="text-center mb-4 text-white">COTISATION MENSUELLE</h2>
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>N°</th> <!-- Nouvelle colonne -->
+                    <th>Prénom</th>
+                    <th>Nom</th>
+                    <th>Adresse</th>
+                    <th>Téléphone</th>
+                    <th>Montant</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="recordTableBody"></tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="5" class="text-end fw-bold">Total :</td>
+                    <td id="totalMontant" class="fw-bold">0 FCFA</td>
+                    <td colspan="2"></td>
+                </tr>
+            </tfoot>
+        </table>
+        <div class="text-center mt-4">
+            <a href="assos.html" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Retour au formulaire</a>
+        </div>
+    </div>
+
+    <script>
+        let records = JSON.parse(localStorage.getItem('records')) || [];
+        const tableBody = document.getElementById('recordTableBody');
+        const totalMontantElem = document.getElementById('totalMontant');
+    
+        function groupByMonth(records) {
+            const grouped = {};
+            records.forEach(record => {
+                const month = record.date.substring(0, 7); // format YYYY-MM
+                if (!grouped[month]) {
+                    grouped[month] = [];
+                }
+                grouped[month].push(record);
+            });
+            return grouped;
+        }
+    
+        function updateTable() {
+            tableBody.innerHTML = '';
+            let totalGlobal = 0;
+            const groupedRecords = groupByMonth(records);
+    
+            Object.keys(groupedRecords).sort().forEach(month => {
+                const monthRecords = groupedRecords[month];
+                let monthlyTotal = 0;
+    
+                // Afficher un en-tête de mois
+                const monthRow = document.createElement('tr');
+                monthRow.innerHTML = `<td colspan="8" class="table-primary fw-bold text-center">${month}</td>`;
+                tableBody.appendChild(monthRow);
+    
+                monthRecords.forEach((record, index) => {
+                    const realIndex = records.findIndex(r =>
+                        r.prenom === record.prenom &&
+                        r.nom === record.nom &&
+                        r.address === record.address &&
+                        r.telephone === record.telephone &&
+                        r.montant === record.montant &&
+                        r.date === record.date
+                    );
+    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${record.prenom}</td>
+                        <td>${record.nom}</td>
+                        <td>${record.address}</td>
+                        <td>${record.telephone}</td>
+                        <td>${record.montant} FCFA</td>
+                        <td>${record.date}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm me-1" onclick="editRecord(${realIndex})"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteRecord(${realIndex})"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+    
+                    monthlyTotal += parseFloat(record.montant);
+                });
+    
+                // Afficher le total mensuel
+                const totalRow = document.createElement('tr');
+                totalRow.innerHTML = `
+                    <td colspan="5" class="text-end fw-bold">Total du mois :</td>
+                    <td class="fw-bold">${monthlyTotal} FCFA</td>
+                    <td colspan="2"></td>
+                `;
+                tableBody.appendChild(totalRow);
+    
+                totalGlobal += monthlyTotal;
+            });
+    
+            totalMontantElem.textContent = `${totalGlobal} FCFA`;
+            localStorage.setItem('records', JSON.stringify(records));
+        }
+    
+        function deleteRecord(index) {
+            if (confirm("Voulez-vous vraiment supprimer cet enregistrement ?")) {
+                records.splice(index, 1);
+                updateTable();
+            }
+        }
+    
+        function editRecord(index) {
+            const record = records[index];
+            const newPrenom = prompt("Modifier le prénom :", record.prenom);
+            const newNom = prompt("Modifier le nom :", record.nom);
+            const newAddress = prompt("Modifier l'adresse :", record.address);
+            const newTelephone = prompt("Modifier le téléphone :", record.telephone);
+            const newMontant = prompt("Modifier le montant :", record.montant);
+            const newDate = prompt("Modifier la date :", record.date);
+    
+            if (newPrenom && newNom && newAddress && newTelephone && !isNaN(newMontant) && newDate) {
+                records[index] = {
+                    prenom: newPrenom,
+                    nom: newNom,
+                    address: newAddress,
+                    telephone: newTelephone,
+                    montant: parseFloat(newMontant),
+                    date: newDate
+                };
+                updateTable();
+            } else {
+                alert("Édition annulée ou invalide.");
+            }
+        }
+    
+        updateTable();
+    </script>
+    
+</body>
+</html>
