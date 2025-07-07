@@ -55,45 +55,64 @@
 
     /* Impression */
     @media print {
-      body::before {
-        background-image: url('https://images.saatchiart.com/saatchi/938273/art/8806167/7869566-GXNPRCPG-7.jpg') !important;
-        background-size: cover !important;
-        background-position: center !important;
-        background-repeat: no-repeat !important;
-        opacity: 0.3 !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        width: 100%;
-      }
+  html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background: none !important;
+  }
 
-      .btn,
-      .btn-sm,
-      .text-center.mt-4,
-      img {
-        display: none !important;
-      }
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('https://images.saatchiart.com/saatchi/938273/art/8806167/7869566-GXNPRCPG-7.jpg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    opacity: 0.3 !important;
+    z-index: -1;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 
-      h2 {
-        color: black !important;
-      }
+  /* Cache les éléments inutiles à l'impression */
+  .btn,
+  .btn-sm,
+  .text-center.mt-4,
+  img {
+    display: none !important;
+  }
 
-      .table-dark,
-      .table-primary {
-        background-color: #e0e0e0 !important;
-        color: black !important;
-      }
+  h2 {
+    color: black !important;
+  }
 
-      table {
-        width: 100% !important;
-        border-collapse: collapse !important;
-      }
+  .table-dark,
+  .table-primary {
+    background-color: #e0e0e0 !important;
+    color: black !important;
+  }
 
-      th, td {
-        border: 1px solid black !important;
-        padding: 6px;
-        font-size: 12px;
-      }
-    }
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  th, td {
+    border: 1px solid black !important;
+    padding: 6px;
+    font-size: 12px;
+  }
+}
+
   </style>
 </head>
 <body>
